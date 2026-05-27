@@ -4,6 +4,7 @@ import com.kode_project.ebooking.dto.*;
 import com.kode_project.ebooking.entity.Prestataire;
 import com.kode_project.ebooking.entity.Role;
 import com.kode_project.ebooking.entity.User;
+import com.kode_project.ebooking.exception.EmailAlreadyExistException;
 import com.kode_project.ebooking.exception.RoleNotFoundException;
 import com.kode_project.ebooking.exception.UserNotFoundException;
 import com.kode_project.ebooking.repository.PrestataireRepository;
@@ -28,7 +29,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmail(email).orElseThrow(()->new UserNotFoundException("L'utilisateur n'existe pas"));
     }
 
     @Override
@@ -51,6 +52,11 @@ public class UserServiceImpl implements UserService {
     }
 
     private User buildUser(UserRequestDto dto, String roleName) {
+        // Vérification unicité email
+        if (userRepository.existsByEmail(dto.email())) {
+            throw new EmailAlreadyExistException(dto.email());
+        }
+
         Role role = roleRepository.findByRoleNom(roleName)
                 .orElseThrow(() -> new RoleNotFoundException("Rôle introuvable : " + roleName));
         User user = dtoToEntity(dto);
@@ -115,7 +121,6 @@ public class UserServiceImpl implements UserService {
                 .prenom(userRequestDto.prenom())
                 .nom(userRequestDto.nom())
                 .email(userRequestDto.email())
-                .telephone(userRequestDto.telephone())
                 .motDePasse(passwordEncoder.encode(userRequestDto.motDePasse()))
                 .build();
     }

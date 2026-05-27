@@ -26,6 +26,13 @@ public class GlobalExceptionHandler {
             Exception ex, HttpServletRequest request) {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
     }
+    @ExceptionHandler(EmailAlreadyExistException.class)
+    public ResponseEntity<ErrorResponseDto> handleEmailAlreadyExist(EmailAlreadyExistException ex,
+                                                                    HttpServletRequest request) {
+        return buildResponse(HttpStatus.CONFLICT,  // 409
+                ex.getMessage(),
+                request.getRequestURI());
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleGeneric(
             Exception ex, HttpServletRequest request) {
