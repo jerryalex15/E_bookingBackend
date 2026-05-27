@@ -5,5 +5,5 @@ import lombok.Builder;
 @Builder
 public record RoleSummaryDto(
         Long roleId,
-        String nomRole
+        String roleNom
 ) {}

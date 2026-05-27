@@ -11,7 +11,6 @@ import com.kode_project.ebooking.repository.PrestataireRepository;
 import com.kode_project.ebooking.repository.ServiceRepository;
 import com.kode_project.ebooking.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -68,19 +67,21 @@ public class PrestataireServiceImpl implements PrestataireService {
     }
 
     private PrestataireResponseDto entityToDto(Prestataire prestataire) {
-        UserSummaryDto userDto = null;
-        if (prestataire.getUser() == null) throw new UserNotFoundException("Prestataire n'a pas de compte utilisateur");
+        if (prestataire.getUser() == null)
+            throw new UserNotFoundException("Prestataire n'a pas de compte utilisateur");
 
-        userDto = new UserSummaryDto(
+        UserSummaryDto userDto = new UserSummaryDto(
                 prestataire.getUser().getUserId(),
                 prestataire.getUser().getNom(),
                 prestataire.getUser().getEmail()
         );
+
         return new PrestataireResponseDto(
                 prestataire.getPrestataireId(),
                 userDto,
                 prestataire.getSpecialite(),
-                prestataire.getAdresse()
+                prestataire.getAdresse(),
+                prestataire.getService() != null ? prestataire.getService().getServiceId() : null
         );
     }
 

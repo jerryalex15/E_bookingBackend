@@ -19,18 +19,15 @@ public class User {
     private Long userId;
     private String prenom;
     private String nom;
+    @Column(unique = true)
     private String email;
     private String telephone;
     private String motDePasse;
     @Builder.Default
     private boolean activeStatut = true;
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    private Role role;
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Prestataire prestataire;

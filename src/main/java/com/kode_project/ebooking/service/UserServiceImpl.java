@@ -1,18 +1,20 @@
 package com.kode_project.ebooking.service;
 
 import com.kode_project.ebooking.dto.*;
+import com.kode_project.ebooking.entity.Prestataire;
 import com.kode_project.ebooking.entity.Role;
 import com.kode_project.ebooking.entity.User;
+import com.kode_project.ebooking.exception.RoleNotFoundException;
 import com.kode_project.ebooking.exception.UserNotFoundException;
+import com.kode_project.ebooking.repository.PrestataireRepository;
 import com.kode_project.ebooking.repository.RoleRepository;
 import com.kode_project.ebooking.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,13 +23,39 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PrestataireRepository prestataireRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
-    public UserResponseDto registration(UserRequestDto userRequestDto) {
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public UserResponseDto registrationClient(UserRequestDto userRequestDto) {
         // À développer pour la validation et le sauvegarder de Role
-        // penser à affecter le rôle (en fonction de l'URL peut-être)
-        return entityToDto(userRepository.save(dtoToEntity(userRequestDto)));
+        User user = buildUser(userRequestDto, "CLIENT");
+        return entityToDto(userRepository.save(user));
+    }
+
+    @Override
+    @Transactional
+    public UserResponseDto registrationPro(UserRequestDto userRequestDto) {
+        User user = userRepository.save(buildUser(userRequestDto, "PRO"));
+        Prestataire p = Prestataire.builder()
+                .user(user)
+                .build();
+        Prestataire prestataire = prestataireRepository.save(p);
+        user.setPrestataire(prestataire);
+        return entityToDto(user);
+    }
+
+    private User buildUser(UserRequestDto dto, String roleName) {
+        Role role = roleRepository.findByRoleNom(roleName)
+                .orElseThrow(() -> new RoleNotFoundException("Rôle introuvable : " + roleName));
+        User user = dtoToEntity(dto);
+        user.setRole(role);
+        return user;
     }
 
     @Override
@@ -49,9 +77,10 @@ public class UserServiceImpl implements UserService {
         user.setEmail(userUpdateRequestDto.email());
         user.setTelephone(userUpdateRequestDto.telephone());
         // motDePasse à gérer séparément avec encodage BCrypt
-        if (userUpdateRequestDto.roleIds() != null && !userUpdateRequestDto.roleIds().isEmpty()) {
-            Set<Role> roles = new HashSet<>(roleRepository.findAllById(userUpdateRequestDto.roleIds()));
-            user.setRoles(roles);
+        if (userUpdateRequestDto.roleId() != null) {
+            Role role = roleRepository.findById(userUpdateRequestDto.roleId())
+                    .orElseThrow(() -> new RoleNotFoundException("Role avec id : "+ userUpdateRequestDto.roleId() + "introuvable"));
+            user.setRole(role);
         }
         return entityToDto(userRepository.save(user));
     }
@@ -81,31 +110,26 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
-    private User dtoToEntity(UserRequestDto dto) {
-        Set<Role> roles = new HashSet<>(
-                roleRepository.findAllById(dto.roleIds())
-        );
-
+    private User dtoToEntity(UserRequestDto userRequestDto) {
         return User.builder()
-                .prenom(dto.prenom())
-                .nom(dto.nom())
-                .email(dto.email())
-                .telephone(dto.telephone())
-                .motDePasse(passwordEncoder.encode(dto.motDePasse()))
-                .roles(roles)
+                .prenom(userRequestDto.prenom())
+                .nom(userRequestDto.nom())
+                .email(userRequestDto.email())
+                .telephone(userRequestDto.telephone())
+                .motDePasse(passwordEncoder.encode(userRequestDto.motDePasse()))
                 .build();
     }
 
     private UserResponseDto entityToDto(User user) {
-        Set<RoleSummaryDto> roles = user.getRoles()
-                .stream()
-                .map(
-                        r -> RoleSummaryDto.builder()
-                                .roleId(r.getRoleId())
-                                .nomRole(r.getRoleNom())
-                                .build()
-                )
-                .collect(Collectors.toSet());
+        RoleSummaryDto role = RoleSummaryDto.builder()
+                .roleId(user.getRole().getRoleId())
+                .roleNom(user.getRole().getRoleNom())
+                .build();
+
+        Long prestataireId = prestataireRepository
+                .findByUserUserId(user.getUserId())
+                .map(Prestataire::getPrestataireId)
+                .orElse(null);
 
         return UserResponseDto.builder()
                 .userId(user.getUserId())
@@ -114,7 +138,8 @@ public class UserServiceImpl implements UserService {
                 .nom(user.getNom())
                 .telephone(user.getTelephone())
                 .prenom(user.getPrenom())
-                .roles(roles)
+                .role(role)
+                .prestataireId(prestataireId)
                 .build();
     }
 }

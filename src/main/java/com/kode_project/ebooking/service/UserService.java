@@ -4,11 +4,17 @@ import com.kode_project.ebooking.dto.ChangePasswordDto;
 import com.kode_project.ebooking.dto.UserRequestDto;
 import com.kode_project.ebooking.dto.UserResponseDto;
 import com.kode_project.ebooking.dto.UserUpdateRequestDto;
+import com.kode_project.ebooking.entity.User;
 
 import java.util.List;
 
 public interface UserService {
-    UserResponseDto registration(UserRequestDto userRequestDto);
+
+    User findUserByEmail (String email);
+
+    UserResponseDto registrationClient(UserRequestDto userRequestDto);
+
+    UserResponseDto registrationPro(UserRequestDto userRequestDto);
 
     UserResponseDto getUserById(Long id);
 

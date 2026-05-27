@@ -40,14 +40,24 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-    @Operation(summary = "Créer un nouvel utilisateur")
+    @Operation(summary = "Créer un nouvel client")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Utilisateur créé avec succès"),
             @ApiResponse(responseCode = "400", description = "Données invalides")
     })
-    @PostMapping("/registration")
-    public ResponseEntity<UserResponseDto> registration(@RequestBody UserRequestDto userRequestDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.registration(userRequestDto));
+    @PostMapping("/registration/client")
+    public ResponseEntity<UserResponseDto> registrationClient(@RequestBody UserRequestDto userRequestDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.registrationClient(userRequestDto));
+    }
+
+    @Operation(summary = "Créer un nouvel utilisateur pro")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Utilisateur créé avec succès"),
+            @ApiResponse(responseCode = "400", description = "Données invalides")
+    })
+    @PostMapping("/registration/pro")
+    public ResponseEntity<UserResponseDto> registrationPro(@RequestBody UserRequestDto userRequestDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.registrationPro(userRequestDto));
     }
 
     @Operation(summary = "Mettre à jour un utilisateur")

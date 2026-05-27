@@ -13,5 +13,6 @@ public record UserResponseDto(
         String email,
         String telephone,
         boolean activeStatut,
-        Set<RoleSummaryDto> roles
+        RoleSummaryDto role,
+        Long prestataireId
 ) { }

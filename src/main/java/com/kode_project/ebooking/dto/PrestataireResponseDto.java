@@ -4,5 +4,6 @@ public record PrestataireResponseDto(
         Long prestataireId,
         UserSummaryDto user,
         String specialite,
-        String adresse
+        String adresse,
+        Long serviceId
 ) { }

@@ -25,7 +25,7 @@ public class StatistiquesServiceImpl implements StatistiquesService {
         long totalDisponibilites = disponibiliteRepository.countTotalDisponibilites();
 
         double tauxOccupation = totalDisponibilites == 0 ? 0 :
-                (double) confirmes / totalDisponibilites * 100;
+                (double) (confirmes / totalDisponibilites) * 100;
 
         return new StatistiquesResponseDto(
                 total,

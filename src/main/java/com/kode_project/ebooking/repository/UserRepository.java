@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT COUNT(u) FROM User u WHERE u.activeStatut = true")
     long countUtilisateursActifs();
+    User findByEmail(String email);
 }
