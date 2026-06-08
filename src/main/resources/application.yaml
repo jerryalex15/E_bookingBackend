@@ -13,4 +13,4 @@ spring:
     allow-circular-references: true
 
 jwt:
-  secret: cle_secret@springboot.com
+  secret: ${JWT_SECRET:cle_secret@springboot.com}
