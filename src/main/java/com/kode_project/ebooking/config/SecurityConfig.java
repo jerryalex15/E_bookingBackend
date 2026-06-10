@@ -36,6 +36,7 @@ public class SecurityConfig {
                         cors.setAllowedMethods(Collections.singletonList("*"));
                         cors.setAllowedHeaders(Collections.singletonList("*"));
                         cors.setExposedHeaders(Collections.singletonList("Authorization"));
+                        cors.setAllowCredentials(true);
                         return cors;
                     }
                 }))
