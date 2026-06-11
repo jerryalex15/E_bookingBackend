@@ -32,7 +32,7 @@ public class SecurityConfig {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration cors = new CorsConfiguration();
-                        cors.setAllowedOriginPatterns(Collections.singletonList("http://localhost*")); // utile pour dev et prod
+                        cors.setAllowedOriginPatterns(Collections.singletonList("http://localhost*")); // utile dev et prod
                         cors.setAllowedMethods(Collections.singletonList("*"));
                         cors.setAllowedHeaders(Collections.singletonList("*"));
                         cors.setExposedHeaders(Collections.singletonList("Authorization"));
